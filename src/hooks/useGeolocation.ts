@@ -15,7 +15,10 @@ export interface GeoLocationSensorState {
   geoError?: Error | IGeolocationPositionError | null;
 }
 
-const useGeolocation = (options?: PositionOptions): GeoLocationSensorState => {
+const useGeolocation = (
+  options?: PositionOptions,
+  enabled?: boolean
+): GeoLocationSensorState => {
   const [state, setState] = useState<GeoLocationSensorState>({
     loading: true,
     latitude: null,
@@ -23,45 +26,30 @@ const useGeolocation = (options?: PositionOptions): GeoLocationSensorState => {
     geoError: null,
   });
   const mounted = useRef(true);
-  let watchId = useRef<number | null>(null);
 
-  const onEvent = useCallback(
-    (event: any) => {
-      if (mounted) {
-        setState({
-          loading: false,
-          latitude: event.coords.latitude,
-          longitude: event.coords.longitude,
-        });
-      }
-    },
-    [mounted]
-  );
-
+  const onEvent = useCallback((event: any) => {
+    setState({
+      loading: false,
+      latitude: event.coords.latitude,
+      longitude: event.coords.longitude,
+    });
+  }, []);
+  console.log(enabled);
   const onEventError = useCallback(
     (error: IGeolocationPositionError) =>
-      mounted &&
       setState((oldState) => ({
         ...oldState,
         loading: false,
         geoError: error,
       })),
-    [mounted]
+    []
   );
 
   useEffect(() => {
-    navigator.geolocation.getCurrentPosition(onEvent, onEventError, options);
-    watchId.current = navigator.geolocation.watchPosition(
-      onEvent,
-      onEventError,
-      options
-    );
-
-    return () => {
-      mounted.current = false;
-      navigator.geolocation.clearWatch(watchId as any);
-    };
-  }, [onEvent, onEventError, options]);
+    if (enabled) {
+      navigator.geolocation.getCurrentPosition(onEvent, onEventError, options);
+    }
+  }, [enabled, onEvent, onEventError, options]);
 
   return state;
 };

@@ -1,5 +1,5 @@
 import { render } from "react-dom";
-import { App } from "./components/App";
+import { App } from "./containers/App";
 import { QueryClient, QueryClientProvider } from "react-query";
 import "./index.css";
 
