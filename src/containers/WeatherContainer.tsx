@@ -20,7 +20,6 @@ export const WeatherContainer: React.FunctionComponent = () => {
     dataSource: [],
   });
   const [visible, setVisible] = useState(false);
-
   const { latitude, longitude, geoError, loading } = useGeolocation(
     {
       enableHighAccuracy: true,

@@ -25,7 +25,6 @@ const useGeolocation = (
     longitude: null,
     geoError: null,
   });
-  const mounted = useRef(true);
 
   const onEvent = useCallback((event: any) => {
     setState({
