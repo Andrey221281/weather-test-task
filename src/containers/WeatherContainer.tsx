@@ -24,16 +24,13 @@ export const WeatherContainer: React.FunctionComponent = () => {
     dataSource: [],
   });
   const [visible, setVisible] = useState(false);
-  const { latitude, longitude, isGeoError, geoError, isGeoLoading } =
+  const { latitude, longitude, isGeoError, geoError } =
     useGeolocation(
       {
         enableHighAccuracy: true,
       },
       !locations.dataSource.length
     );
-
-  console.log("longitude", longitude);
-  console.log("isGeoLoading", isGeoLoading);
 
   useEffect(() => {
     const initialState = localStorage.getItem("city");
@@ -86,9 +83,6 @@ export const WeatherContainer: React.FunctionComponent = () => {
     localStorage.setItem("city", JSON.stringify({ dataSource: [...item] }));
   };
 
-  console.log(data, error, isError, isLoading);
-  console.log(latitude, longitude, isGeoError, geoError, isGeoLoading);
-
   return (
     <div className="relative overflow-hidden" style={{ width: "300px" }}>
       <SettingOutlined
@@ -118,7 +112,7 @@ export const WeatherContainer: React.FunctionComponent = () => {
         ) : (
           <Weather
             isError={isError || isGeoError}
-            isLoading={isLoading || isGeoLoading}
+            isLoading={isLoading}
             error={(error as any)?.response.data || geoError?.message}
             {...cachedMutatedData}
           />
