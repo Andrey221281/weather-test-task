@@ -17,9 +17,6 @@ export class HttpInstance {
       params: {
         appid: HttpInstance.apiKey,
       },
-      // validateStatus: () => {
-      //   return true;
-      // },
     });
   }
 
@@ -30,7 +27,7 @@ export class HttpInstance {
     lon,
   }: WeatherProps): Promise<ApiWeather> {
     const { data } = await HttpInstance.api.get("/data/2.5/weather", {
-      params: { q, units, lat, lon },
+      params: { q: q?.trim(), units, lat, lon },
     });
     return data;
   }
