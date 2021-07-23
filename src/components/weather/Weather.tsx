@@ -52,7 +52,7 @@ export const Weather: React.FunctionComponent<Partial<ApiWeather> & Props> = ({
       <div className="flex items-center justify-between">
         <img
           src={`https://openweathermap.org/img/wn/${
-            weather ? weather[0].icon : "01n"
+            weather && weather[0].icon
           }@2x.png`}
           alt={weather && weather[0].description}
         />

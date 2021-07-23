@@ -67,11 +67,6 @@ export const WeatherContainer: React.FunctionComponent = () => {
     }
   );
 
-  const cachedMutatedData = useMemo(() => {
-    if (isError) return null;
-    return data;
-  }, [isError, data]);
-
   const deleteItem = (key: number) => {
     const item = locations.dataSource.filter((e) => e.key !== key);
     setLocations({ dataSource: [...item] });
@@ -80,7 +75,7 @@ export const WeatherContainer: React.FunctionComponent = () => {
   };
 
   console.log(isLoading ? "true" : "false");
-  console.log("cachedMutatedData", cachedMutatedData);
+  console.log("data", data);
 
   return (
     <div className="relative overflow-hidden" style={{ width: "300px" }}>
@@ -90,7 +85,7 @@ export const WeatherContainer: React.FunctionComponent = () => {
       />
 
       <div
-        className="overflow-hidden"
+        className="overflow-hidden "
         style={{ width: "300px", minHeight: "350px" }}
       >
         {locations.dataSource.length !== 0 ? (
@@ -111,9 +106,9 @@ export const WeatherContainer: React.FunctionComponent = () => {
         ) : (
           <Weather
             isError={isError || isGeoError}
-            isLoading={isLoading}
+            isLoading={isLoading || !latitude}
             error={(error as any)?.response.data || geoError?.message}
-            {...cachedMutatedData}
+            {...data}
           />
         )}
         <AppDrawer
@@ -125,6 +120,9 @@ export const WeatherContainer: React.FunctionComponent = () => {
           setVisible={(e) => setVisible(e)}
         />
       </div>
+      <p className="my-3 absolute top-40  left-6 text-lg leading-none	">
+        {isGeoError && geoError?.message}
+      </p>
     </div>
   );
 };
