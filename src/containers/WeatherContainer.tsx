@@ -74,9 +74,6 @@ export const WeatherContainer: React.FunctionComponent = () => {
     localStorage.setItem("city", JSON.stringify({ dataSource: [...item] }));
   };
 
-  console.log(isLoading ? "true" : "false");
-  console.log("data", data);
-
   return (
     <div className="relative overflow-hidden" style={{ width: "300px" }}>
       <SettingOutlined
@@ -91,16 +88,15 @@ export const WeatherContainer: React.FunctionComponent = () => {
         {locations.dataSource.length !== 0 ? (
           (
             userQueries as UseQueryResult<ApiWeather, QueryObserverIdleResult>[]
-          ).map(({ data, isLoading, isError, error }) => {
+          ).map(({ data, isLoading, isError, error }, index) => {
             return (
-              <span key={data?.id}>
-                <Weather
-                  isError={isError}
-                  isLoading={isLoading}
-                  error={(error as any)?.response.data.message}
-                  {...data}
-                />
-              </span>
+              <Weather
+                key={index}
+                isError={isError}
+                isLoading={isLoading}
+                error={(error as any)?.response.data.message}
+                {...data}
+              />
             );
           })
         ) : (
