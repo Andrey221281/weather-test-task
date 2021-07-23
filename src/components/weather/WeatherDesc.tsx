@@ -10,7 +10,7 @@ export const WeatherDesc: React.FunctionComponent<
         Feels like {main && Math.round(main.feels_like)}
         &#176;C.
       </span>
-      <span className="capitalize ml-1">
+      <span className="capitalize ml-1 whitespace-nowrap">
         {weather && weather[0].description}.
       </span>
       <span className="ml-1">{windDescription}</span>

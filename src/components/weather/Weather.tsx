@@ -8,16 +8,20 @@ import { Wind } from "./Wind";
 import { dewPoint } from "./dewPoint";
 
 interface Props {
-  loading?: boolean;
+  isLoading?: boolean;
+  isError?: boolean;
+  error?: string | null;
 }
 
 export const Weather: React.FunctionComponent<Partial<ApiWeather> & Props> = ({
   name,
   weather,
   main,
-  loading,
+  isLoading,
   sys,
   wind,
+  isError,
+  error,
 }) => {
   const windDescription = windDesc.find(
     (e) =>
@@ -30,8 +34,16 @@ export const Weather: React.FunctionComponent<Partial<ApiWeather> & Props> = ({
     (e) => wind && wind.deg > e.deg_interval[0] && wind.deg < e.deg_interval[1]
   );
 
+  if (isError) {
+    return (
+      <Card bordered={false} loading={isLoading} className="my-6 pb-2">
+        <p className="capitalize text-xl">{error}</p>
+      </Card>
+    );
+  }
+
   return (
-    <Card bordered={false} loading={loading} className="my-6 pb-2">
+    <Card bordered={false} loading={isLoading} className="my-6 pb-2">
       <div>
         <span className="text-base font-semibold">
           {name}, {sys?.country}

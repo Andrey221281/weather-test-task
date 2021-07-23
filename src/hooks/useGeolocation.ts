@@ -3,15 +3,13 @@ import { useCallback, useEffect, useState } from "react";
 export interface IGeolocationPositionError {
   readonly code: number;
   readonly message: string;
-  readonly PERMISSION_DENIED: number;
-  readonly POSITION_UNAVAILABLE: number;
-  readonly TIMEOUT: number;
 }
 
 export interface GeoLocationSensorState {
-  loading: boolean;
-  latitude: number | null;
-  longitude: number | null;
+  isGeoLoading: boolean;
+  isGeoError?: boolean;
+  latitude?: number | null;
+  longitude?: number | null;
   geoError?: Error | IGeolocationPositionError | null;
 }
 
@@ -20,7 +18,8 @@ const useGeolocation = (
   enabled?: boolean
 ): GeoLocationSensorState => {
   const [state, setState] = useState<GeoLocationSensorState>({
-    loading: true,
+    isGeoLoading: true,
+    isGeoError: false,
     latitude: null,
     longitude: null,
     geoError: null,
@@ -28,27 +27,28 @@ const useGeolocation = (
 
   const onEvent = useCallback((event: any) => {
     setState({
-      loading: false,
+      isGeoLoading: false,
       latitude: event.coords.latitude,
       longitude: event.coords.longitude,
+      isGeoError: false,
     });
   }, []);
-  console.log(enabled);
+
   const onEventError = useCallback(
     (error: IGeolocationPositionError) =>
       setState((oldState) => ({
         ...oldState,
-        loading: false,
+        isGeoLoading: false,
         geoError: error,
+        isGeoError: true,
       })),
     []
   );
 
   useEffect(() => {
-    if (enabled) {
-      navigator.geolocation.getCurrentPosition(onEvent, onEventError, options);
-    }
-  }, [enabled, onEvent, onEventError, options]);
+    if (!enabled && state.latitude) return;
+    navigator.geolocation.getCurrentPosition(onEvent, onEventError, options);
+  }, [enabled, onEvent, onEventError, options, state.latitude]);
 
   return state;
 };

@@ -1,8 +1,12 @@
-import React, { useEffect, useState } from "react";
-import { useQueries, useQuery, UseQueryResult } from "react-query";
+import React, { useEffect, useMemo, useState } from "react";
+import {
+  useQueries,
+  useQuery,
+  UseQueryResult,
+  QueryObserverIdleResult,
+} from "react-query";
 import { HttpInstance } from "../api";
 import { Weather } from "../components/weather";
-import { Card } from "antd";
 import { SettingOutlined } from "@ant-design/icons";
 import { AppDrawer } from "../components/drawer";
 import useGeolocation from "../hooks/useGeolocation";
@@ -20,12 +24,13 @@ export const WeatherContainer: React.FunctionComponent = () => {
     dataSource: [],
   });
   const [visible, setVisible] = useState(false);
-  const { latitude, longitude, geoError, loading } = useGeolocation(
-    {
-      enableHighAccuracy: true,
-    },
-    !locations.dataSource.length
-  );
+  const { latitude, longitude, isGeoError, geoError, isGeoLoading } =
+    useGeolocation(
+      {
+        enableHighAccuracy: true,
+      },
+      !locations.dataSource.length
+    );
 
   useEffect(() => {
     const initialState = localStorage.getItem("city");
@@ -34,81 +39,84 @@ export const WeatherContainer: React.FunctionComponent = () => {
     }
   }, []);
 
+  const fetcher = async (
+    name?: string | null,
+    lat?: number | null,
+    lon?: number | null
+  ) => {
+    return await HttpInstance.getWeather({
+      q: name,
+      lat,
+      lon,
+    });
+  };
+
   const userQueries = useQueries(
     locations.dataSource.map((locations) => {
       return {
         queryKey: ["weather", locations.name, latitude, longitude],
-        queryFn: async (): Promise<ApiWeather> => {
-          return await HttpInstance.getWeather({
-            q: locations.name,
-          });
-        },
+        queryFn: () => fetcher(locations.name),
         enabled: !!locations.name,
         refetchOnWindowFocus: false,
       };
     })
   );
 
-  const { data, isLoading } = useQuery(
+  const { data, error, isError, isLoading } = useQuery(
     ["weather", latitude, longitude],
-    async () =>
-      await HttpInstance.getWeather({
-        lat: latitude,
-        lon: longitude,
-      }),
+    () => fetcher(null, latitude, longitude),
     {
       enabled: !!latitude && !!longitude,
       refetchOnWindowFocus: false,
     }
   );
 
+  const cachedMutatedData = useMemo(() => {
+    if (isError) return null;
+    return data;
+  }, [isError, data]);
+
   const deleteItem = (key: number) => {
     const item = locations.dataSource.filter((e) => e.key !== key);
     setLocations({ dataSource: [...item] });
     localStorage.removeItem("city");
     localStorage.setItem("city", JSON.stringify({ dataSource: [...item] }));
-    setVisible(false);
   };
 
-  if (geoError) {
-    return (
-      <Card bordered style={{ overflow: "hidden", width: "300px" }}>
-        <h1>Error</h1>
-        {geoError.message}
-      </Card>
-    );
-  }
-
   return (
-    <div className="relative" style={{ width: "300px" }}>
+    <div className="relative overflow-hidden" style={{ width: "300px" }}>
       <SettingOutlined
         className="absolute z-10 text-lg text-gray-500 top-3 right-5"
         onClick={() => setVisible(true)}
       />
 
-      <Card
-        bordered={true}
-        style={{ overflow: "hidden", width: "300px" }}
-        loading={isLoading}
+      <div
+        className="overflow-hidden"
+        style={{ width: "300px", minHeight: "350px" }}
       >
-        {locations.dataSource.length ? (
-          (userQueries as UseQueryResult<ApiWeather>[]).map(({ data }) => {
-            if (data?.cod === "404") {
-              return (
-                <span key={data?.id}>
-                  <h1 className="text-lg ml-7 capitalize text-red-500">
-                    {data?.message}
-                  </h1>
-                  <Weather key={data?.id} loading={true} {...data} />
-                </span>
-              );
-            }
-            return <Weather key={data?.id} {...data} />;
+        {locations.dataSource.length !== 0 ? (
+          (
+            userQueries as UseQueryResult<ApiWeather, QueryObserverIdleResult>[]
+          ).map(({ data, isLoading, isError, error }) => {
+            return (
+              <span key={data?.id}>
+                <Weather
+                  isError={isError}
+                  isLoading={isLoading}
+                  error={(error as any)?.response.data.message}
+                  {...data}
+                />
+              </span>
+            );
           })
         ) : (
-          <Weather loading={loading} {...data} />
+          <Weather
+            isError={isError || isGeoError}
+            isLoading={isLoading || isGeoLoading}
+            error={(error as any)?.response.data || geoError?.message}
+            {...cachedMutatedData}
+          />
         )}
-
         <AppDrawer
           visible={visible}
           onClose={() => setVisible(false)}
@@ -117,7 +125,7 @@ export const WeatherContainer: React.FunctionComponent = () => {
           deleteItem={deleteItem}
           setVisible={(e) => setVisible(e)}
         />
-      </Card>
+      </div>
     </div>
   );
 };

@@ -1,4 +1,4 @@
-import { Button, Drawer, Input, Table } from "antd";
+import { Drawer, Input, Table } from "antd";
 import React, { useState } from "react";
 import { arrayMove } from "react-sortable-hoc";
 import { DragHandle, SortableContainerP, SortableItem } from "./DragHandle";
@@ -7,6 +7,8 @@ import { DeleteOutlined } from "@ant-design/icons";
 import "./AppDrawer.css";
 import { Locations } from "../../containers/WeatherContainer";
 
+const { Search } = Input;
+
 interface Props {
   visible: boolean;
   onClose: () => void;
@@ -14,6 +16,7 @@ interface Props {
   setLocations: (e: any) => void;
   deleteItem: (e: number) => void;
   setVisible: (e: boolean) => void;
+  isLoading?: boolean;
 }
 interface IDraggableBodyRow {
   className: string;
@@ -28,6 +31,7 @@ export const AppDrawer: React.FunctionComponent<Props> = ({
   setLocations,
   deleteItem,
   setVisible,
+  isLoading,
 }) => {
   const [value, setValue] = useState("");
 
@@ -48,7 +52,7 @@ export const AppDrawer: React.FunctionComponent<Props> = ({
       title: "Action",
       render: (text: string, record: any) => (
         <DeleteOutlined
-          className="cursor-pointer -mt-1 text-gray-500"
+          className="cursor-pointer mt-0.5 text-gray-500 float-right"
           onClick={() => deleteItem(record.key)}
         />
       ),
@@ -148,14 +152,15 @@ export const AppDrawer: React.FunctionComponent<Props> = ({
             },
           }}
         />
-        <div className="mt-8 flex items-center">
-          <div>
-            <Input type="text" value={value} onChange={handleChange} />
-          </div>
-          <Button onClick={handleSubmit} className="ml-auto">
-            Add
-          </Button>
-        </div>
+
+        <Search
+          className="mt-6"
+          type="text"
+          value={value}
+          onChange={handleChange}
+          enterButton="Add"
+          onSearch={handleSubmit}
+        />
       </div>
     </Drawer>
   );

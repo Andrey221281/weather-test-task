@@ -17,9 +17,9 @@ export class HttpInstance {
       params: {
         appid: HttpInstance.apiKey,
       },
-      validateStatus: () => {
-        return true;
-      },
+      // validateStatus: () => {
+      //   return true;
+      // },
     });
   }
 
