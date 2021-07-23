@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 export interface IGeolocationPositionError {
   readonly code: number;
@@ -24,8 +24,6 @@ const useGeolocation = (
     longitude: null,
     geoError: null,
   });
-
-  const watchId = useRef<number>(0);
 
   const onEvent = useCallback((event: any) => {
     setState({
@@ -54,14 +52,6 @@ const useGeolocation = (
       onEventError,
       options
     );
-    watchId.current = navigator.geolocation.watchPosition(
-      onEvent,
-      onEventError,
-      options
-    );
-    return () => {
-      navigator.geolocation.clearWatch(watchId.current);
-    };
   }, [enabled, onEvent, onEventError, options, state.latitude]);
 
   return state;
