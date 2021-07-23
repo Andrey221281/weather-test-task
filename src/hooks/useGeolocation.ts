@@ -47,11 +47,7 @@ const useGeolocation = (
 
   useEffect(() => {
     if (!enabled && state.latitude) return;
-    window.navigator.geolocation.getCurrentPosition(
-      onEvent,
-      onEventError,
-      options
-    );
+    navigator.geolocation.getCurrentPosition(onEvent, onEventError, options);
   }, [enabled, onEvent, onEventError, options, state.latitude]);
 
   return state;
