@@ -57,7 +57,7 @@ const useGeolocation = (): GeoLocationSensorState => {
         enableHighAccuracy: true,
       }
     );
-    console.log(watchId);
+
     return () => {
       mounted.current = false;
       navigator.geolocation.clearWatch(watchId.current);
