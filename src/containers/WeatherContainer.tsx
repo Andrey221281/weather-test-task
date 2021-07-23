@@ -52,6 +52,7 @@ export const WeatherContainer: React.FunctionComponent = () => {
         queryFn: () => fetcher(locations.name),
         enabled: !!locations.name,
         refetchOnWindowFocus: false,
+        refetchOnMount: false,
       };
     })
   );
@@ -62,6 +63,7 @@ export const WeatherContainer: React.FunctionComponent = () => {
     {
       enabled: !!latitude && !!longitude,
       refetchOnWindowFocus: false,
+      refetchOnMount: false,
     }
   );
 
@@ -76,6 +78,9 @@ export const WeatherContainer: React.FunctionComponent = () => {
     localStorage.removeItem("city");
     localStorage.setItem("city", JSON.stringify({ dataSource: [...item] }));
   };
+
+  console.log(isLoading ? "true" : "false");
+  console.log("cachedMutatedData", cachedMutatedData);
 
   return (
     <div className="relative overflow-hidden" style={{ width: "300px" }}>
