@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 export interface IGeolocationPositionError {
   readonly code: number;
@@ -13,10 +13,7 @@ export interface GeoLocationSensorState {
   geoError?: Error | IGeolocationPositionError | null;
 }
 
-const useGeolocation = (
-  options?: PositionOptions,
-  enabled?: boolean
-): GeoLocationSensorState => {
+const useGeolocation = (): GeoLocationSensorState => {
   const [state, setState] = useState<GeoLocationSensorState>({
     isGeoLoading: true,
     isGeoError: false,
@@ -24,6 +21,7 @@ const useGeolocation = (
     longitude: null,
     geoError: null,
   });
+  const mounted = useRef(true);
 
   const onEvent = useCallback((event: any) => {
     setState({
@@ -44,11 +42,17 @@ const useGeolocation = (
       })),
     []
   );
-
+  console.log(mounted);
   useEffect(() => {
-    if (!enabled && state.latitude) return;
-    navigator.geolocation.getCurrentPosition(onEvent, onEventError, options);
-  }, [enabled, onEvent, onEventError, options, state.latitude]);
+    mounted.current &&
+      navigator.geolocation.getCurrentPosition(onEvent, onEventError, {
+        enableHighAccuracy: true,
+      });
+
+    return () => {
+      mounted.current = false;
+    };
+  }, [onEvent, onEventError]);
 
   return state;
 };

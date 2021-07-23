@@ -24,12 +24,7 @@ export const WeatherContainer: React.FunctionComponent = () => {
     dataSource: [],
   });
   const [visible, setVisible] = useState(false);
-  const { latitude, longitude, isGeoError, geoError } = useGeolocation(
-    {
-      enableHighAccuracy: true,
-    },
-    !locations.dataSource.length
-  );
+  const { latitude, longitude, isGeoError, geoError } = useGeolocation();
 
   useEffect(() => {
     const initialState = localStorage.getItem("city");
