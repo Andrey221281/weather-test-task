@@ -22,18 +22,21 @@ const useGeolocation = (): GeoLocationSensorState => {
     geoError: null,
   });
   const mounted = useRef(true);
+  const watchId = useRef(0);
 
   const onEvent = useCallback((event: any) => {
-    setState({
-      isGeoLoading: false,
-      latitude: event.coords.latitude,
-      longitude: event.coords.longitude,
-      isGeoError: false,
-    });
+    mounted.current &&
+      setState({
+        isGeoLoading: false,
+        latitude: event.coords.latitude,
+        longitude: event.coords.longitude,
+        isGeoError: false,
+      });
   }, []);
 
   const onEventError = useCallback(
     (error: IGeolocationPositionError) =>
+      mounted.current &&
       setState((oldState) => ({
         ...oldState,
         isGeoLoading: false,
@@ -42,15 +45,22 @@ const useGeolocation = (): GeoLocationSensorState => {
       })),
     []
   );
-  console.log(mounted);
-  useEffect(() => {
-    mounted.current &&
-      navigator.geolocation.getCurrentPosition(onEvent, onEventError, {
-        enableHighAccuracy: true,
-      });
 
+  useEffect(() => {
+    navigator.geolocation.getCurrentPosition(onEvent, onEventError, {
+      enableHighAccuracy: true,
+    });
+    watchId.current = navigator.geolocation.watchPosition(
+      onEvent,
+      onEventError,
+      {
+        enableHighAccuracy: true,
+      }
+    );
+    console.log(watchId);
     return () => {
       mounted.current = false;
+      navigator.geolocation.clearWatch(watchId.current);
     };
   }, [onEvent, onEventError]);
 
