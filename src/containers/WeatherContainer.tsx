@@ -32,6 +32,9 @@ export const WeatherContainer: React.FunctionComponent = () => {
       !locations.dataSource.length
     );
 
+  console.log("longitude", longitude);
+  console.log("isGeoLoading", isGeoLoading);
+
   useEffect(() => {
     const initialState = localStorage.getItem("city");
     if (initialState != null) {
@@ -82,6 +85,9 @@ export const WeatherContainer: React.FunctionComponent = () => {
     localStorage.removeItem("city");
     localStorage.setItem("city", JSON.stringify({ dataSource: [...item] }));
   };
+
+  console.log(data, error, isError, isLoading);
+  console.log(latitude, longitude, isGeoError, geoError, isGeoLoading);
 
   return (
     <div className="relative overflow-hidden" style={{ width: "300px" }}>
