@@ -77,9 +77,7 @@ export const AppDrawer: React.FunctionComponent<Props> = ({
     }
   };
 
-  const DraggableContainer: React.FunctionComponent<{
-    [key: string]: any;
-  }> = (props: any) => (
+  const DraggableContainer: React.FunctionComponent = (props) => (
     <SortableContainerP
       useDragHandle
       disableAutoscroll
